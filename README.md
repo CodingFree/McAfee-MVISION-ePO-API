@@ -1,27 +1,36 @@
-# McAfee-MVISION-ePO-API
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-This are simple scripts (examples) how to download Threat Events from the McAfee MVISION ePO and McAfee MVISION Mobile.
-
+# McAfee Events API recollector and processor
+## Installation
+Package dependencies of this script are:
+* json
+* requests
+* logging
+* sys
+* time
+* datetime
+* dateutil
+To install all dependencies, you can run the following line:
+```bash
+python -m pip install requests logging python-dateutil DateTime
 ```
-usage: python3 mvision_epo_events.py -R <Region> -U <User> -M <Minutes> -L <Limit> -F <File>
 
-McAfee MVISION EPO Events Pull
+
+## Usage
+```bash
+usage: main.py [-h] -u USER -p PASSWORD -c CLIENT_ID [-r {US,SI,EU,SY}] [-s SLEEP_SECONDS] [-m MAX_LOG_HOURS]
+
+Get and process McAfee Events from API in stream mode.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --region {US,SI,EU,SY}, -R {US,SI,EU,SY}
-                        McAfee MVISION Tenant Region
-  --user USER, -U USER  McAfee MVISION EPO Username
-  --pw PW, -P PW        McAfee MVISION EPO Password
-  --minutes MINUTES, -M MINUTES
-                        Pull MVISION EPO Events from the last x Minutes
-  --limit LIMIT, -L LIMIT
-                        Maximum Events to retrieve
-  --file {Y,N}, -F {Y,N}
-                        Write output to file
+  -u USER, --user USER  API user
+  -p PASSWORD, --password PASSWORD
+                        API password
+  -c CLIENT_ID, --client_id CLIENT_ID
+                        API client ID
+  -r {US,SI,EU,SY}, --region {US,SI,EU,SY}
+                        API Tenant Region, default EU
+  -s SLEEP_SECONDS, --sleep_seconds SLEEP_SECONDS
+                        Seconds to sleep between requests, default 10
+  -m MAX_LOG_HOURS, --max_log_hours MAX_LOG_HOURS
+                        Maximum log file age hours before delete it, default 12
 ```
-
-Other scopes can be defined. Examples:
-
-epo.admin epo.adit.r epo.qery.g epo.resp.ru epo.pevt.r epo.ubp.r epo.sdlr.r epo.dir.a epo.evt.r epo.dxlc.r epo.eagt.r epo.eagt.tr epo.dash.r ens.comn.r ens.comn.vs ens.fw.r ens.fw.vc ens.fw.vr ens.fw.vp ens.fw.vs ens.wp.tr ens.wp.r ens.wp.vs ens.atp.vs ens.atp.r ens.am.r ens.am.tr ens.am.vs ens.am.ve ens.vrs.r ens.vrs.tr mvs.endp.r epo.reg_token
