@@ -30,7 +30,7 @@ class McAfeeReader():
     Region endpoint where MVSION tenant is deployed. It could be configured through
     region paramenter that could be between US, SI, EU and SY. (Default: EU)
   scope: str
-    API events request scope. (Default epo.evt.r)
+    API events request scope. (Default epo.evt.r dp.im.r)
   logger: Logger
     Logger object to store all logs
   auth_url: str
@@ -55,7 +55,7 @@ class McAfeeReader():
     Function that handles events requests every X seconds configured and writes events to a file. It also handles
     log file rotation by deleting old files each configured time (using rotate function).
   """
-  def __init__(self,user,password,client_id,sleep_seconds=10,region='EU',scope='epo.evt.r',
+  def __init__(self,user,password,client_id,sleep_seconds=10,region='EU',scope='epo.evt.r dp.im.r',
          logger_name='mcafee',max_log_age_hours=12,syslog=False,server="localhost",protocol="TCP",port=514):
     self.logger = logging.getLogger(logger_name)
     self.logger.setLevel('INFO')
@@ -101,7 +101,7 @@ class McAfeeReader():
     self.scope = scope
 
     headers = {'Accept': 'application/json'}
-
+    self.sleep_seconds = int(sleep_seconds)
     self.session = requests.Session()
     self.session.headers = headers
     
@@ -224,10 +224,11 @@ class McAfeeReader():
       "subTypeKey": "threatcategory",
       "signatureIdKey": "threateventid",
     }
-    # Local file options
+   
     now = datetime.utcnow()
     end_hour = (now.hour + 23) % 24 # now.hour - 1 ?
-    rotation_hour = (now.hour + max_log_age_hours) % 24
+    # Local file options
+    rotation_hour = (now.hour + self.max_log_age_hours) % 24
 
     while True:
       delay_begin = time.time()
@@ -238,14 +239,14 @@ class McAfeeReader():
       events = self.events(since=since_iso,until=until_iso)
       # convert events to CEF format using CEFProcessor module
       cef_events = CEFProcessor.CEFProcessor(events['Threats'],attribs).process_events()
+      # if day has finished, recreate token auth and restart end_hour variable
+      if now.hour == end_hour:
+        self.auth()
+        end_hour = (now.hour + 23) % 24
       if syslog:
         self.write_syslog(cef_events,server,protocol,port)
       else:
         self.write(cef_events,now)
-        # if day has finished, recreate token auth and restart end_hour variable
-        if now.hour == end_hour:
-          self.auth()
-          end_hour = (now.hour + 23) % 24
         # check if rotation time has arrived and then checks every hour
         if now.hour == rotation_hour:
           self.rotate()
