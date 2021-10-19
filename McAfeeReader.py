@@ -4,7 +4,7 @@ import logging
 import sys
 import time
 from datetime import datetime, timedelta
-
+import socket
 import CEFProcessor
 
 ##### Based on https://github.com/mohlcyber/McAfee-MVISION-ePO-API
@@ -55,13 +55,32 @@ class McAfeeReader():
     log file rotation by deleting old files each configured time (using rotate function).
   """
   def __init__(self,user,password,client_id,sleep_seconds=10,region='EU',scope='epo.evt.r',
-         logger_name='mcafee',max_log_age_hours=12):
+         logger_name='mcafee',max_log_age_hours=12,syslog=False,server="localhost",protocol="TCP",port=514):
     self.logger = logging.getLogger(logger_name)
     self.logger.setLevel('INFO')
     handler = logging.StreamHandler()
     formatter = logging.Formatter("%(asctime)s - [%(levelname)s] %(message)s")
     handler.setFormatter(formatter)
     self.logger.addHandler(handler)
+    ### Configuring Syslog forwarding
+    if syslog:
+      if protocol.lower() == "tcp":
+        self.handler = logging.handlers.SysLogHandler(address=(server,port),socktype=socket.SOCK_STREAM)
+        self.handler.setFormatter(logging.Formatter('%(message)s\n'))
+        self.handler.append_nul = False
+      elif protocol.lower() == "udp":
+        self.handler = logging.handlers.SysLogHandler(address=(server,port))
+      else:
+        self.logger.critical("Syslog protocol not valid.")
+        sys.exit(1)
+      self.syslog_logger = logging.getLogger("syslog")
+      self.syslog_logger.setLevel(logging.DEBUG)
+      self.syslog_logger.addHandler(self.handler)
+      self.logger.info("Successfully created logger instance for syslog {0}".format(protocol+'://'+server+':'+str(port)))
+
+    ### Configuring file forwarding
+    else:
+      self.max_log_age_hours = max_log_age_hours
 
     self.auth_url = 'https://iam.mcafee-cloud.com/iam/v1.0/token'
     if region == 'US':
@@ -86,7 +105,6 @@ class McAfeeReader():
     self.session = requests.Session()
     self.session.headers = headers
     
-    self.max_log_age_hours = max_log_age_hours
     self.auth()
     
   def auth(self):
@@ -108,7 +126,7 @@ class McAfeeReader():
       self.logger.info('Successfully authenticated.')
     else:
       self.logger.error('Could not authenticate. {0} - {1}'.format(str(res.status_code), res.text))
-      sys.exit()
+      sys.exit(1)
   
   def events(self,since,until,ev_type='all'):
     """
@@ -128,7 +146,6 @@ class McAfeeReader():
       'type': ev_type,  # threats, incidents (dlp), all
       'since': since,
       'until': until,
-      'limit': str(args.limit)
     }
 
     res = self.session.get('https://{0}/eventservice/api/v2/events'.format(self.base), params=params)
@@ -137,7 +154,7 @@ class McAfeeReader():
       return res.json()
     else:
       self.logger.error('Could not retrieve MVISION EPO Events. {0} - {1}'.format(str(res.status_code),res.text))
-      sys.exit()
+      sys.exit(1)
       
   def write(self,evts,now,prefix='mcafee-events',path='/var/log/mcafee/'):
     """
@@ -160,6 +177,22 @@ class McAfeeReader():
     with open(filename,'a') as f:
       for event in evts['Events']:
         f.write(json.dumps(event))
+
+  def write_syslog(self,evts):
+    """
+    Writes events received to a file
+    
+    Parameters
+    ----------
+    evts : list
+      Events to write
+    """
+    for event in evts['Events']:
+      try:
+        self.syslog_logger.info(event)
+      except Exception as e:
+        self.logger.error("Error sending log to syslog server - {0}".format(str(e)))
+    
         
   def rotate(self,prefix='mcafee-events',path='/var/log/mcafee/'):
     """
@@ -180,20 +213,23 @@ class McAfeeReader():
         self.logger.info("Removing file {0} for rotation policy".format(file))
 
   def main(self):
-    now = datetime.utcnow()
-    end_hour = (now.hour + 23) % 24 # now.hour - 1 ?
-    roatation_hour = (now.hour + max_log_age_hours) % 24
     attribs = {
       "deviceVendor": "McAfee",
       "deviceId": "McAfee EPO",
-      "deviceVersion": "SaaS",
-      "timeKey": "EventTime",
-      "hostKey": "ServerID",
-      "severityKey": "ThreatSeverity",
-      "typeKey": "SourceModuleName",
-      "subTypeKey": "SourceModuleType",
-      "signatureIdKey": "AutoID",
+      "deviceVersion": "MVISION",
+      "timeKey": "receivedutc",
+      "hostKey": "sourcehostname",
+      "severityKey": "threatseverity",
+      "typeKey": "threattype",
+      "subTypeKey": "threatcategory",
+      "signatureIdKey": "threateventid",
     }
+    # Local file options
+    now = datetime.utcnow()
+    end_hour = (now.hour + 23) % 24 # now.hour - 1 ?
+    roatation_hour = (now.hour + max_log_age_hours) % 24
+    ### Syslog forward options
+
     while True:
       delay_begin = time.time()
       # calculates loop requested times (since -> since + sleep time)
@@ -202,16 +238,19 @@ class McAfeeReader():
       # retrieve events and write them to file
       events = self.events(since=since_iso,until=until_iso)
       # convert events to CEF format using CEFProcessor module
-      cef_events = CEFProcessor.CEFProcessor(events,attribs).process_events()
-      self.write(cef_events,now)
-      # if day has finished, recreate token auth and restart end_hour variable
-      if now.hour == end_hour:
-        self.auth()
-        end_hour = (now.hour + 23) % 24
-      # check if rotation time has arrived and then checks every hour
-      if now.hour == roatation_hour:
-        self.rotate()
-        roatation_hour = (now.hour + 1) % 2
+      cef_events = CEFProcessor.CEFProcessor(events['Threats'],attribs).process_events()
+      if syslog:
+        self.write_syslog(cef_events,server,protocol,port)
+      else:
+        self.write(cef_events,now)
+        # if day has finished, recreate token auth and restart end_hour variable
+        if now.hour == end_hour:
+          self.auth()
+          end_hour = (now.hour + 23) % 24
+        # check if rotation time has arrived and then checks every hour
+        if now.hour == roatation_hour:
+          self.rotate()
+          roatation_hour = (now.hour + 1) % 2
       # to avoid events loss, uses loop execution time to substract it to wait time
       delay = time.time() - delay_begin
       time.sleep(self.sleep_seconds - delay)
