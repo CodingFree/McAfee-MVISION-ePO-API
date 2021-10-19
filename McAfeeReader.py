@@ -64,7 +64,8 @@ class McAfeeReader():
     handler.setFormatter(formatter)
     self.logger.addHandler(handler)
     ### Configuring Syslog forwarding
-    if syslog:
+    self.syslog = syslog
+    if self.syslog:
       if protocol.lower() == "tcp":
         self.handler = logging.handlers.SysLogHandler(address=(server,port),socktype=socket.SOCK_STREAM)
         self.handler.setFormatter(logging.Formatter('%(message)s\n'))
@@ -187,7 +188,7 @@ class McAfeeReader():
     evts : list
       Events to write
     """
-    for event in evts['Events']:
+    for event in evts:
       try:
         self.syslog_logger.info(event)
       except Exception as e:
@@ -243,8 +244,8 @@ class McAfeeReader():
       if now.hour == end_hour:
         self.auth()
         end_hour = (now.hour + 23) % 24
-      if syslog:
-        self.write_syslog(cef_events,server,protocol,port)
+      if self.syslog:
+        self.write_syslog(cef_events)
       else:
         self.write(cef_events,now)
         # check if rotation time has arrived and then checks every hour

@@ -1,5 +1,6 @@
 import datetime
 from dateutil import parser
+import logging
 
 class CEFProcessor():
   """
@@ -44,7 +45,7 @@ class CEFProcessor():
   process_messages()
     Function that process all JSON messages and returns a list of them in CEF format.
   """
-  def __init__(self,events,attribs,fullFormat=True,eventsKey="events",hostDefault="HOST",
+  def __init__(self,events,attribs,fullFormat=True,eventsKey="Events",hostDefault="Analyzer",
          severityDefault="1",signatureIdDefault="000001",logger_name="cefprocessor"):
   ##### TODO: to be redefined when got a log example from McAfee API
     """
@@ -76,40 +77,40 @@ class CEFProcessor():
   
   def process_time(self,event,timeKey):
     if timeKey in event.keys():
-      time = parser.parse(event[timeKey])
+      time = parser.parse(event[timeKey]["value"])
     else:
       time = datetime.datetime.now()
     return time.strftime("%b %d %H:%M:%S")
     
   def process_host(self,event,hostKey):
     if hostKey in event.keys():
-      host = event[hostKey]
+      host = event[hostKey]["value"]
     else:
       host = self.hostDefault
     return host
 
   def process_severity(self,event,severityKey):
     if severityKey in event.keys():
-      severity = event[severityKey]
+      severity = event[severityKey]["value"]
     else:
       severity = self.severityDefault
     return severity
 
   def process_signature(self,event,signatureKey):
     if signatureKey in event.keys():
-      signature = event[signatureKey]
+      signature = event[signatureKey]["value"]
     else:
       signature = self.severityDefault
     return signature
 
-  def process_messages(self):
+  def process_events(self):
     messages = []
     for ev in self.events[self.eventsKey]:
       try:
         time = self.process_time(ev,self.attribs["timeKey"])
         host = self.process_host(ev,self.attribs["hostKey"])
         severity = self.process_severity(ev,self.attribs["severityKey"])
-        name = ev[self.attribs["typeKey"]] + ":" + ev[self.attribs["subTypeKey"]]
+        name = ev[self.attribs["typeKey"]]["value"] + ":" + ev[self.attribs["subTypeKey"]]["value"]
         signature = self.process_signature(ev,self.attribs["signatureIdKey"])
         cef = "CEF:0|%s|%s|%s|%s|%s|%s|" % (self.attribs["deviceVendor"],self.attribs["deviceId"],
                               self.attribs["deviceVersion"],signature,name,severity)
@@ -122,7 +123,7 @@ class CEFProcessor():
           cef = cef[:-1]
         messages.append(cef)
       except Exception as e:
-        self.logger.error("Error processing messages - {0}".format(e.message))
+        self.logger.error("Error processing messages - {0}".format(str(e)))
     self.messages = messages
     self.logger.debug("Logs correctly processed")
     return self.messages
