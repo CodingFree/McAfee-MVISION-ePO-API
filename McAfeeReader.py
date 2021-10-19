@@ -6,6 +6,7 @@ import time
 from datetime import datetime, timedelta
 import socket
 import CEFProcessor
+from logging import handlers
 
 ##### Based on https://github.com/mohlcyber/McAfee-MVISION-ePO-API
 
@@ -79,8 +80,7 @@ class McAfeeReader():
       self.logger.info("Successfully created logger instance for syslog {0}".format(protocol+'://'+server+':'+str(port)))
 
     ### Configuring file forwarding
-    else:
-      self.max_log_age_hours = max_log_age_hours
+    self.max_log_age_hours = max_log_age_hours
 
     self.auth_url = 'https://iam.mcafee-cloud.com/iam/v1.0/token'
     if region == 'US':
@@ -227,14 +227,13 @@ class McAfeeReader():
     # Local file options
     now = datetime.utcnow()
     end_hour = (now.hour + 23) % 24 # now.hour - 1 ?
-    roatation_hour = (now.hour + max_log_age_hours) % 24
-    ### Syslog forward options
+    rotation_hour = (now.hour + max_log_age_hours) % 24
 
     while True:
       delay_begin = time.time()
       # calculates loop requested times (since -> since + sleep time)
-      until_iso = now.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
-      since_iso = (now - timedelta(seconds=self.sleep_seconds)).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
+      until_iso = now.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+      since_iso = (now - timedelta(seconds=self.sleep_seconds)).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
       # retrieve events and write them to file
       events = self.events(since=since_iso,until=until_iso)
       # convert events to CEF format using CEFProcessor module
@@ -248,9 +247,9 @@ class McAfeeReader():
           self.auth()
           end_hour = (now.hour + 23) % 24
         # check if rotation time has arrived and then checks every hour
-        if now.hour == roatation_hour:
+        if now.hour == rotation_hour:
           self.rotate()
-          roatation_hour = (now.hour + 1) % 2
+          rotation_hour = (now.hour + 1) % 2
       # to avoid events loss, uses loop execution time to substract it to wait time
       delay = time.time() - delay_begin
       time.sleep(self.sleep_seconds - delay)
