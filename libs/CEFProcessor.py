@@ -117,7 +117,7 @@ class CEFProcessor():
         if self.fullFormat:
           cef = "%s %s " % (time,host) + cef
         for k,v in ev.items():
-          if k not in attribs.values():
+          if k not in self.attribs.values():
             cef += "%s=%s " % (k,v)
         if cef[-1] == " ":
           cef = cef[:-1]

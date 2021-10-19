@@ -1,0 +1,15 @@
+[Unit]
+Description=mcafee-collector: McAfee Events collector, parser to CEF format and forwarder to Syslog or Local File
+Documentation=https://github.com/CodingFree/McAfee-MVISION-ePO-API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/mcafee-collector/main.py -u $MCAFEE_USER -c $MCAFEE_CLIENT_ID -p $MCAFEE_PASSWORD -s 30 -S -B tcp -P 25226
+ExecStop=/bin/kill -TERM ${MAINPID}
+ExecReload=/bin/kill -HUP ${MAINPID}
+Restart=always
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target

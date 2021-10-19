@@ -8,12 +8,12 @@ Package dependencies of this script are:
 * time
 * datetime
 * dateutil
+
+### DOING: Creating installation script with service install and folder structure
 To install all dependencies, you can run the following line:
 ```bash
 python -m pip install requests logging python-dateutil DateTime
 ```
-
-
 ## Usage
 ```bash
 usage: main.py [-h] -u USER -p PASSWORD -c CLIENT_ID [-r {US,SI,EU,SY}] [-s SLEEP_SECONDS] [-m MAX_LOG_HOURS] [-S]
