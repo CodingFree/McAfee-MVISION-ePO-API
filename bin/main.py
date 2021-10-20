@@ -12,7 +12,7 @@ parser.add_argument('-S','--syslog',help='Activate syslog forward',dest='syslog'
 parser.add_argument('-H','--syslog_server',help='Syslog server host, default 127.0.0.1',default="127.0.0.1",required=False)
 parser.add_argument('-B','--syslog_protocol',help='Syslog server protocol, default TCP',default="TCP",required=False,choices=['TCP','tcp','UDP','udp'])
 parser.add_argument('-P','--syslog_port',help='Syslog server port, default 25226',default=25226,required=False)
-
+parser.add_argument('-l','--log_file',help='Save program logs to file (/var/log/mcafee-collector/mcafee-collector.log) or just to stdout',required=False,action='store_true')
 
 
 args = parser.parse_args()
@@ -20,5 +20,5 @@ args = parser.parse_args()
 reader = McAfeeReader.McAfeeReader(user=args.user,password=args.password,
     client_id=args.client_id,sleep_seconds=args.sleep_seconds,region=args.region,
     logger_name='mcafee',max_log_age_hours=args.max_log_hours,syslog=args.syslog,server=args.syslog_server,
-    protocol=args.syslog_protocol,port=args.syslog_port)
+    protocol=args.syslog_protocol,port=args.syslog_port,log_file=args.log_file)
 reader.main()

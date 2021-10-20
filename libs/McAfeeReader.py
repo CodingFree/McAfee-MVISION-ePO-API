@@ -39,7 +39,9 @@ class McAfeeReader():
     Session where requests are made
   max_log_age_hours: int
     Log file hours retention. (Default: 12).
-    
+  log_file: bool
+    Store program logs also to a file. (Default: False)
+
   Methods
   -------
   auth()
@@ -56,7 +58,7 @@ class McAfeeReader():
     log file rotation by deleting old files each configured time (using rotate function).
   """
   def __init__(self,user,password,client_id,sleep_seconds=10,region='EU',scope='epo.evt.r dp.im.r',
-         logger_name='mcafee',max_log_age_hours=12,syslog=False,server="localhost",protocol="TCP",port=514):
+         logger_name='mcafee',max_log_age_hours=12,syslog=False,server="localhost",protocol="TCP",port=514,log_file=False):
     self.logger = logging.getLogger(logger_name)
     self.logger.setLevel('INFO')
     handler = logging.StreamHandler()
@@ -64,10 +66,13 @@ class McAfeeReader():
     handler.setFormatter(formatter)
     self.logger.addHandler(handler)
 
-    handler = logging.FileHandler("/var/log/mcafee-collector/mcafee-collector.log")
-    formatter = logging.Formatter("%(asctime)s - McAfeeReader [%(levelname)s] %(message)s")
-    handler.setFormatter(formatter)
-    self.logger.addHandler(handler)
+    ### Configuring log store to file
+    self.log_file = log_file
+    if self.log_file:
+      handler = logging.FileHandler("/var/log/mcafee-collector/mcafee-collector.log")
+      formatter = logging.Formatter("%(asctime)s - McAfeeReader [%(levelname)s] %(message)s")
+      handler.setFormatter(formatter)
+      self.logger.addHandler(handler)
     
     ### Configuring Syslog forwarding
     self.syslog = syslog
@@ -245,7 +250,7 @@ class McAfeeReader():
       # retrieve events and write them to file
       events = self.events(since=since_iso,until=until_iso)
       # convert events to CEF format using CEFProcessor module
-      cef_events = CEFProcessor.CEFProcessor(events['Threats'],attribs=attribs).process_events()
+      cef_events = CEFProcessor.CEFProcessor(events['Threats'],attribs=attribs,log_file=self.log_file).process_events()
       # if day has finished, recreate token auth and restart end_hour variable
       if now.hour == end_hour:
         self.auth()

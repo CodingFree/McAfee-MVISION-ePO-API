@@ -1,11 +1,8 @@
 # McAfee Events API recollector and processor
 ## Installation
-
-
-### DOING: Creating installation script with service install and folder structure
 To install collector, you can run the installation provided script in this way:
 ```bash
-bash mcafee-collector-install.sh <API user> <API password> <API client_id>
+bash mcafee-collector-install.sh <API user> <API password> <API client_id> <program logs to file {-y,-n}>
 ```
 ## Single Usage
 ```bash

@@ -46,13 +46,15 @@ class CEFProcessor():
     Function that process all JSON messages and returns a list of them in CEF format.
   """
   def __init__(self,events,attribs,fullFormat=True,eventsKey="Events",hostDefault="Analyzer",
-         severityDefault="1",signatureIdDefault="000001",logger_name="cefprocessor"):
+         severityDefault="1",signatureIdDefault="000001",logger_name="cefprocessor",log_file=False):
   ##### TODO: to be redefined when got a log example from McAfee API
     """
     Parameters
     ----------
     events : list
       List of events to process
+    log_file: bool
+      Store program logs also to a file. (Default: False)
     Rest of the class attributes needed.
     """
     self.hostDefault = hostDefault
@@ -72,10 +74,12 @@ class CEFProcessor():
     handler.setFormatter(formatter)
     self.logger.addHandler(handler)
 
-    handler = logging.FileHandler("/var/log/mcafee-collector/mcafee-collector.log")
-    formatter = logging.Formatter("%(asctime)s - CEFProcessor [%(levelname)s] %(message)s")
-    handler.setFormatter(formatter)
-    self.logger.addHandler(handler)
+    ### Configuring log store to file
+    if log_file:
+      handler = logging.FileHandler("/var/log/mcafee-collector/mcafee-collector.log")
+      formatter = logging.Formatter("%(asctime)s - CEFProcessor [%(levelname)s] %(message)s")
+      handler.setFormatter(formatter)
+      self.logger.addHandler(handler)
 
     self.logger.debug("Starting CEFProcessor with parameters: hostDefault={0},severityDefault={1},\
       signatureIdDefault={2},eventsKey={3},attribs={4}, fullFormat = {5}\

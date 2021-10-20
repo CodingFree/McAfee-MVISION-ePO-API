@@ -7,15 +7,21 @@ if [[ $(whoami) != "root" ]]; then
 	exit 1
 fi
 
-if [[ $# -ne 3 ]]; then
+if [[ $# -ne 4 ]]; then
 	echo "Installation run format:"
-	echo "bash mcafee-collector-install.sh <API user> <API password> <API client_id>"
+	echo "bash mcafee-collector-install.sh <API user> <API password> <API client_id> <file log or not {-y, -n}>"
 	exit 1
 fi
 
 user=$1
 password=$2
 client_id=$3
+file_log=$4
+
+if [[ $file_log -ne "-y" ]] && [[ $file_log -ne "-n" ]]; then
+	echo "Last option should be -y or -n."
+	exit 1
+fi
 
 # Setup options based on OS distribution
 if [[ $(cat /etc/os-release | grep CentOS | wc -l) -gt 0 ]]; then
