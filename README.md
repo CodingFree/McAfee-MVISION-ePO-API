@@ -5,10 +5,10 @@ To install collector, you can run the installation provided script in this way:
 bash mcafee-collector-install.sh <API user> <API password> <API client_id> <program logs to file {-y,-n}>
 ```
 Script mandaroty options are:
-*API user: User to connect to the API
-*API password: Password to connect to the API
-*API client_id: Client ID used to connecto to the API. Could be obtained from https://auth.ui.mcafee.com/support.html
-*Program logs to file: Store program logs to /var/log/mcafee-collector/mcafee-collector.log (-y) or not (-n)
+* API user: User to connect to the API
+* API password: Password to connect to the API
+* API client_id: Client ID used to connecto to the API. Could be obtained from https://auth.ui.mcafee.com/support.html
+* Program logs to file: Store program logs to /var/log/mcafee-collector/mcafee-collector.log (-y) or not (-n)
 ## Single usage
 ```bash
 usage: /opt/mcafee-collector/bin/main.py [-h] -u USER -p PASSWORD -c CLIENT_ID [-r {US,SI,EU,SY}]
