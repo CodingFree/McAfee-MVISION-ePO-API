@@ -124,7 +124,7 @@ class CEFProcessor():
           cef = "%s %s " % (time,host) + cef
         for k,v in ev.items():
           if k not in self.attribs.values():
-            cef += "%s=%s " % (k,v)
+            cef += "%s=%s " % (k,v["value"])
         if cef[-1] == " ":
           cef = cef[:-1]
         messages.append(cef)
