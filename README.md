@@ -1,20 +1,13 @@
 # McAfee Events API recollector and processor
 ## Installation
-Package dependencies of this script are:
-* json
-* requests
-* logging
-* sys
-* time
-* datetime
-* dateutil
+
 
 ### DOING: Creating installation script with service install and folder structure
-To install all dependencies, you can run the following line:
+To install collector, you can run the installation provided script in this way:
 ```bash
-python -m pip install requests logging python-dateutil DateTime
+bash mcafee-collector-install.sh <API user> <API password> <API client_id>
 ```
-## Usage
+## Single Usage
 ```bash
 usage: main.py [-h] -u USER -p PASSWORD -c CLIENT_ID [-r {US,SI,EU,SY}] [-s SLEEP_SECONDS] [-m MAX_LOG_HOURS] [-S]
                [-H SYSLOG_SERVER] [-B {TCP,tcp,UDP,udp}] [-P SYSLOG_PORT]
