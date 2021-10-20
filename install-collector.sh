@@ -18,7 +18,11 @@ password=$2
 client_id=$3
 file_log=$4
 
-if [[ $file_log -ne "-y" ]] && [[ $file_log -ne "-n" ]]; then
+if [[ $file_log -ne "-y" ]]; then
+	LOG_FILE_OPT="-l"
+elif [[ $file_log -ne "-n" ]]; then
+	LOG_FILE_OPT=""
+else
 	echo "Last option should be -y or -n."
 	exit 1
 fi
@@ -48,10 +52,11 @@ cp installation/mcafee-collector.service $SERVICE_ROOT
 cp libs/* /opt/mcafee-collector/bin
 
 # Configure API credentials
-cat <<EOF >> /opt/mcafee-collector/conf/config.env
+cat <<EOF > /opt/mcafee-collector/conf/config.env
 MCAFEE_USER=$user
 MCAFEE_PASSWORD=$password
 MCAFEE_CLIENT_ID=$client_id
+LOG_FILE_OPT=$LOG_FILE_OPT
 EOF
 chmod 700 /opt/mcafee-collector/conf/config.env
 
