@@ -37,7 +37,7 @@ mkdir -p /opt/mcafee-collector/libs
 # And move files to them
 cp bin/main.py /opt/mcafee-collector/bin
 cp installation/mcafee-collector.service $SERVICE_ROOT
-cp libs/* /opt/mcafee-collector/libs
+cp libs/* /opt/mcafee-collector/bin
 # Configure API credentials
 cat <<EOF >> /opt/mcafee-collector/conf/config.env
 MCAFEE_USER=$user
@@ -55,3 +55,4 @@ if [[ $(systemctl is-active mcafee-collector) == "active" ]]; then
 else
 	echo "Installation failed. Please, review parameters and service logs 'journalctl -xeu mcafee-collector'"
 	exit 1
+fi

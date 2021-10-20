@@ -1,6 +1,4 @@
 import argparse
-import sys
-sys.path.append('../libs')
 import McAfeeReader
 
 parser = argparse.ArgumentParser(description='Get and process McAfee Events from API in stream mode.')
