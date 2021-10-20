@@ -9,7 +9,7 @@ fi
 
 if [[ $# -ne 3 ]]; then
 	echo "Installation run format:"
-	echo "$ bash mcafee-collector-install.sh <API user> <API password> <API client_id>"
+	echo "bash mcafee-collector-install.sh <API user> <API password> <API client_id>"
 	exit 1
 fi
 
@@ -30,6 +30,7 @@ fi
 # Install Python 3 and non-native libraries
 $PM install -y python3 python3-pip
 python3 -m pip install requests python-dateutil
+
 # Create folders
 mkdir -p /opt/mcafee-collector/conf
 mkdir -p /opt/mcafee-collector/bin
@@ -38,6 +39,7 @@ mkdir -p /opt/mcafee-collector/libs
 cp bin/main.py /opt/mcafee-collector/bin
 cp installation/mcafee-collector.service $SERVICE_ROOT
 cp libs/* /opt/mcafee-collector/bin
+
 # Configure API credentials
 cat <<EOF >> /opt/mcafee-collector/conf/config.env
 MCAFEE_USER=$user
@@ -45,6 +47,7 @@ MCAFEE_PASSWORD=$password
 MCAFEE_CLIENT_ID=$client_id
 EOF
 chmod 700 /opt/mcafee-collector/conf/config.env
+
 # Enable and start service
 systemctl daemon-reload
 systemctl enable --now mcafee-collector

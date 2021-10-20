@@ -66,8 +66,14 @@ class CEFProcessor():
 
     self.logger = logging.getLogger(logger_name)
     self.logger.setLevel('INFO')
+
     handler = logging.StreamHandler()
     formatter = logging.Formatter("%(asctime)s - [%(levelname)s] %(message)s")
+    handler.setFormatter(formatter)
+    self.logger.addHandler(handler)
+
+    handler = logging.FileHandler("/var/log/mcafee-collector/mcafee-collector.log")
+    formatter = logging.Formatter("%(asctime)s - CEFProcessor [%(levelname)s] %(message)s")
     handler.setFormatter(formatter)
     self.logger.addHandler(handler)
 

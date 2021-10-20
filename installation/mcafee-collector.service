@@ -6,10 +6,12 @@ Wants=network-online.target
 
 [Service]
 User=root
+Group=root
+
 ExecStart=/usr/bin/python3 /opt/mcafee-collector/bin/main.py -u $MCAFEE_USER -c $MCAFEE_CLIENT_ID -p $MCAFEE_PASSWORD -s 30 -S -B tcp -P 25226
 ExecStop=/bin/kill -TERM ${MAINPID}
 ExecReload=/bin/kill -HUP ${MAINPID}
-EnvironmentFile=/opt/mcafee-collector/conf/var.env
+EnvironmentFile=/opt/mcafee-collector/conf/config.env
 Restart=always
 TimeoutStopSec=120
 

@@ -63,6 +63,12 @@ class McAfeeReader():
     formatter = logging.Formatter("%(asctime)s - [%(levelname)s] %(message)s")
     handler.setFormatter(formatter)
     self.logger.addHandler(handler)
+
+    handler = logging.FileHandler("/var/log/mcafee-collector/mcafee-collector.log")
+    formatter = logging.Formatter("%(asctime)s - McAfeeReader [%(levelname)s] %(message)s")
+    handler.setFormatter(formatter)
+    self.logger.addHandler(handler)
+    
     ### Configuring Syslog forwarding
     self.syslog = syslog
     if self.syslog:
