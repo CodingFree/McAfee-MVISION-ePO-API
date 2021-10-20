@@ -18,9 +18,9 @@ password=$2
 client_id=$3
 file_log=$4
 
-if [[ $file_log -ne "-y" ]]; then
+if [[ $file_log == "-y" ]]; then
 	LOG_FILE_OPT="-l"
-elif [[ $file_log -ne "-n" ]]; then
+elif [[ $file_log == "-n" ]]; then
 	LOG_FILE_OPT=""
 else
 	echo "Last option should be -y or -n."
@@ -62,7 +62,8 @@ chmod 700 /opt/mcafee-collector/conf/config.env
 
 # Enable and start service
 systemctl daemon-reload
-systemctl enable --now mcafee-collector
+systemctl enable mcafee-collector
+systemctl restart mcafee-collector
 
 if [[ $(systemctl is-active mcafee-collector) == "active" ]]; then
 	echo "Installation completed successfully"
