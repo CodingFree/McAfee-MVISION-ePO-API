@@ -35,6 +35,7 @@ python3 -m pip install requests python-dateutil
 mkdir -p /opt/mcafee-collector/conf
 mkdir -p /opt/mcafee-collector/bin
 mkdir -p /opt/mcafee-collector/libs
+mkdir -p /var/log/mcafee-collector
 # And move files to them
 cp bin/main.py /opt/mcafee-collector/bin
 cp installation/mcafee-collector.service $SERVICE_ROOT
