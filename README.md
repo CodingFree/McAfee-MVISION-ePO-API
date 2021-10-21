@@ -42,3 +42,28 @@ optional arguments:
                         collector/mcafee-collector.log) or just to stdout
 
 ```
+## File configuration
+Main binary could be executed and configured by using flag parameters but it could be also configured by using a configuration file. This configuration file must be in KEY=VALUE format (environmental variables format) and accept the following parameters mapping with the flag specified:
+```
+MCAFEE_USER: user
+MCAFEE_PASSWORD: password
+MCAFEE_CLIENT_ID: password
+LOG_FILE_OPT: log_file
+MCAFEE_REGION: region
+SLEEP_SECONDS: sleep_seconds
+MAX_LOG_HOURS: max_log_hours
+SYSLOG: syslog
+SYSLOG_SERVER: syslog_server
+SYSLOG_PROTOCOL: syslog_protocol
+SYSLOG_PORT: syslog_port
+```
+This file also support comments by using #.
+An example of this file is:
+```file
+MCAFEE_USER=user
+# password configuration
+MCAFEE_PASSWORD=password
+LOG_FILE_OPT=-l
+SLEEP_SECONDS=10
+```
+Note: If a configuration file is used, it will override all parameters passed as argument that are present on the configuration file. The rest of the arguments are not modified.

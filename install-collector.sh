@@ -44,7 +44,6 @@ python3 -m pip install requests python-dateutil
 # Create folders
 mkdir -p /opt/mcafee-collector/conf
 mkdir -p /opt/mcafee-collector/bin
-mkdir -p /opt/mcafee-collector/libs
 mkdir -p /var/log/mcafee-collector
 # And move files to them
 cp bin/main.py /opt/mcafee-collector/bin
@@ -52,13 +51,13 @@ cp installation/mcafee-collector.service $SERVICE_ROOT
 cp libs/* /opt/mcafee-collector/bin
 
 # Configure API credentials
-cat <<EOF > /opt/mcafee-collector/conf/config.env
+cat <<EOF > /opt/mcafee-collector/conf/properties.conf
 MCAFEE_USER=$user
 MCAFEE_PASSWORD=$password
 MCAFEE_CLIENT_ID=$client_id
 LOG_FILE_OPT=$LOG_FILE_OPT
 EOF
-chmod 700 /opt/mcafee-collector/conf/config.env
+chmod 700 /opt/mcafee-collector/conf/properties.conf
 
 # Enable and start service
 systemctl daemon-reload
