@@ -58,12 +58,13 @@ SYSLOG_PROTOCOL: syslog_protocol
 SYSLOG_PORT: syslog_port
 ```
 This file also support comments by using #.
+If LOG_FILE_OPT or SYSLOG options are present on the configuration file, as they are boolean options, they will be evaluated as True. If they are not needed, do not put them into configuration file. Its values will be skipped.
 An example of this file is:
 ```file
 MCAFEE_USER=user
 # password configuration
 MCAFEE_PASSWORD=password
-LOG_FILE_OPT=-l
+LOG_FILE_OPT=
 SLEEP_SECONDS=10
 ```
 Note: If a configuration file is used, it will override all parameters passed as argument that are present on the configuration file. The rest of the arguments are not modified.

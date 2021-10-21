@@ -18,11 +18,7 @@ password=$2
 client_id=$3
 file_log=$4
 
-if [[ $file_log == "-y" ]]; then
-	LOG_FILE_OPT="-l"
-elif [[ $file_log == "-n" ]]; then
-	LOG_FILE_OPT=""
-else
+if [[ $file_log != "-y" ]] && [[ $file_log != "-n" ]]; then
 	echo "Last option should be -y or -n."
 	exit 1
 fi
@@ -55,8 +51,9 @@ cat <<EOF > /opt/mcafee-collector/conf/properties.conf
 MCAFEE_USER=$user
 MCAFEE_PASSWORD=$password
 MCAFEE_CLIENT_ID=$client_id
-LOG_FILE_OPT=$LOG_FILE_OPT
 EOF
+if [[ $file_log == "-y" ]]; then
+	echo "LOG_FILE_OPT=" >> /opt/mcafee-collector/conf/properties.conf
 chmod 700 /opt/mcafee-collector/conf/properties.conf
 
 # Enable and start service

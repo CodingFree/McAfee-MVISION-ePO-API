@@ -21,7 +21,10 @@ def read_properties(file,args):
                 try:
                     k,value = line.split('=')
                     if k in mapping.keys():
-                        vars(args)[mapping[k]] = value.replace("\n","")
+                        if k == "LOG_FILE_OPT" or k == "SYSLOG":
+                            vars(args)[mapping[k]] = True
+                        else:
+                            vars(args)[mapping[k]] = value.replace("\n","")
                 except Exception as e:
                     print("Error in configuration file format in line: {0}".format(line))
                     print("Skipping this line")
