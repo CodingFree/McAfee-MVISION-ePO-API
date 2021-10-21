@@ -5,7 +5,7 @@ def read_properties(file,args):
     mapping = {
         'MCAFEE_USER': 'user',
         'MCAFEE_PASSWORD': 'password',
-        'MCAFEE_CLIENT_ID': 'password',
+        'MCAFEE_CLIENT_ID': 'client_id',
         'LOG_FILE_OPT': 'log_file',
         'MCAFEE_REGION': 'region',
         'SLEEP_SECONDS': 'sleep_seconds',
@@ -21,7 +21,7 @@ def read_properties(file,args):
                 try:
                     k,value = line.split('=')
                     if k in mapping.keys():
-                        vars(args)[mapping[k]] = value
+                        vars(args)[mapping[k]] = value.replace("\n","")
                 except Exception as e:
                     print("Error in configuration file format in line: {0}".format(line))
                     print("Skipping this line")
