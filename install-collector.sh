@@ -54,6 +54,7 @@ MCAFEE_CLIENT_ID=$client_id
 EOF
 if [[ $file_log == "-y" ]]; then
 	echo "LOG_FILE_OPT=" >> /opt/mcafee-collector/conf/properties.conf
+fi
 chmod 700 /opt/mcafee-collector/conf/properties.conf
 
 # Enable and start service
