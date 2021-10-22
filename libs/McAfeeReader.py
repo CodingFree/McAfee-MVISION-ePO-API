@@ -252,7 +252,7 @@ class McAfeeReader():
       # convert events to CEF format using CEFProcessor module
       cef_events = CEFProcessor.CEFProcessor(events['Threats'],attribs=attribs,log_file=self.log_file).process_events()
       # Working on DLP events processing
-      cef_events += CEFProcessor.CEFProcessor(events['DLP'],attribs=attribs,log_file=self.log_file).process_events()
+      cef_events += CEFProcessor.CEFProcessor(events['Incidents'],attribs=attribs,log_file=self.log_file).process_events()
       # if day has finished, recreate token auth and restart end_hour variable
       if now.hour == end_hour:
         self.auth()
