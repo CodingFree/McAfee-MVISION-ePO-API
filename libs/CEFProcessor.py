@@ -46,7 +46,7 @@ class CEFProcessor():
     Function that process all JSON messages and returns a list of them in CEF format.
   """
   def __init__(self,events,attribs,fullFormat=True,eventsKey="Events",hostDefault="Analyzer",
-         severityDefault="1",signatureIdDefault="000001",logger_name="cefprocessor",log_file=False):
+         severityDefault="1",signatureIdDefault="00001",logger_name="cefprocessor",log_file=False):
   ##### TODO: to be redefined when got a log example from McAfee API
     """
     Parameters
@@ -133,7 +133,7 @@ class CEFProcessor():
           cef = cef[:-1]
         messages.append(cef)
       except Exception as e:
-        self.logger.error("Error processing messages - {0}".format(str(e)))
+        self.logger.error("Error processing message - {0}".format(str(e)))
     self.messages = messages
     self.logger.debug("Logs correctly processed")
     return self.messages

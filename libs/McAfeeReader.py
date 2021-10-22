@@ -238,7 +238,7 @@ class McAfeeReader():
     }
    
     now = datetime.utcnow()
-    end_hour = (now.hour + 23) % 24 # now.hour - 1 ?
+    end_hour = (now.hour + 2) % 24 # renew auth token each 2 hours
     # Local file options
     rotation_hour = (now.hour + self.max_log_age_hours) % 24
 
@@ -251,10 +251,12 @@ class McAfeeReader():
       events = self.events(since=since_iso,until=until_iso)
       # convert events to CEF format using CEFProcessor module
       cef_events = CEFProcessor.CEFProcessor(events['Threats'],attribs=attribs,log_file=self.log_file).process_events()
+      # Working on DLP events processing
+      cef_events += CEFProcessor.CEFProcessor(events['DLP'],attribs=attribs,log_file=self.log_file).process_events()
       # if day has finished, recreate token auth and restart end_hour variable
       if now.hour == end_hour:
         self.auth()
-        end_hour = (now.hour + 23) % 24
+        end_hour = (now.hour + 2) % 24 # renew auth token each 2 hours
       if self.syslog:
         self.write_syslog(cef_events)
       else:
